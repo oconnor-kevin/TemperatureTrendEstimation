@@ -66,3 +66,26 @@ pdf("STAT261FinalProjectPeriodogram.pdf", width=13, height=5)
 plot(f, P, main="Scaled Periodogram", xlab="Frequency", ylab="Scaled Periodogram", type="l")
 dev.off()
 
+# Estimating seasonal component using iterated loess fitting.
+decomp = stl(weather_data, "periodic")
+unseasoned = weather_data - decomp$time.series[,1]
+lin_trend_fit2 = lm(unseasoned ~ time(weather_data))
+summary(lin_trend_fit2)
+confint(lin_trend_fit2)
+
+# Forward step-wise model selection on trend.  
+sq = time(weather_data)^2
+quad_trend_fit = lm(unseasoned ~ time(weather_data) + sq)
+anova(lin_trend_fit2, quad_trend_fit, test="Chisq")
+cu = time(weather_data)^3
+cubic_trend_fit = lm(unseasoned ~ time(weather_data) + sq + cu)
+anova(quad_trend_fit, cubic_trend_fit, test="Chisq")
+qu = time(weather_data)^4
+quartic_trend_fit = lm(unseasoned ~ time(weather_data) + sq + cu + qu)
+anova(cubic_trend_fit, quartic_trend_fit, test="Chisq")
+
+# Examining residuals. 
+pdf("STAT261FinalProjectPlot3.pdf", width=13, height=5)
+plot(time(weather_data), cubic_trend_fit$res, main="Cubic Trend Fit Residuals", ylab="Residual", xlab="Time")
+abline(h=0)
+dev.off()
