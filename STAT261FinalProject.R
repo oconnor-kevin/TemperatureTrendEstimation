@@ -89,3 +89,19 @@ pdf("STAT261FinalProjectPlot3.pdf", width=13, height=5)
 plot(time(weather_data), cubic_trend_fit$res, main="Cubic Trend Fit Residuals", ylab="Residual", xlab="Time")
 abline(h=0)
 dev.off()
+
+# Plotting unseasoned data with cubic trend fit.  
+pdf("STAT261FinalProjectPlot4.pdf", width=13, height=5)
+plot(time(weather_data), unseasoned, main="Unseasoned Quarterly Weather Data with Fit", ylab="Temperature", xlab="Time", cex=0.25, type="l")
+points(time(weather_data), fitted.values(cubic_trend_fit), type="l", lwd=5)
+dev.off()
+
+# Fitting data to an arma model.  
+det_unseasoned = unseasoned - fitted.values(cubic_trend_fit)
+arma_fit = sarima(det_unseasoned, p=2, d=0, q=1)
+arma_fit
+
+# Forecasting 10 years into future.
+pdf("STAT261FinalProjectPlot5.pdf", width=13, height=5)
+sarima.for(det_unseasoned, n.ahead=40, p=2, d=0, q=1)
+dev.off()
